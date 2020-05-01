@@ -32,4 +32,4 @@
 *.app
 
 # Matlab temporary files
-*.csv
+*.asv
