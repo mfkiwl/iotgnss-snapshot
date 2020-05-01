@@ -29,6 +29,9 @@ addpath('nav');
 
 % --------- ACQUISITION ---------------------------------------------------
 [prn, codePhase, Tambg, doppler, cno] = acquisition(s, fs, fi);
+if length(prn) < 4
+    error('Not enough satellite acquired (%u < %u).', length(prn), 4);
+end
 
 % --------- POSITIONING WITH MILLISECOND AMBIGUITY RESOLUTION -------------
 % Perform first a rough positioning to resolve the ambiguities
@@ -36,6 +39,9 @@ addpath('nav');
 
 % selection of satellites with orbits
 ix = find(arrayfun(@(x) ~isempty(x.PRN), eph));
+if length(ix) < 4
+    error('Not enough ephemerides (%u < %u).', length(ix), 4);
+end
 
 % position estimation
 [t,r,~,v] = coarsePVT(t0, r0, eph(ix), codePhase(ix), Tambg(ix), ...
