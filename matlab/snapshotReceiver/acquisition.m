@@ -43,6 +43,10 @@ cF = conj(fft(c'));
 % timing of the samples in s
 ts = (0:length(s)-1) / fs;
 
+% IF wipe-off and down-sampling of the input signal to chip-rate
+[sLowRateBB, numCodes] = downSampleMix(s, fs, fi, fc, L);
+tLowRateBB = (0:length(sLowRateBB)-1)' / fc;
+
 T = ts(end);
 fDstep = round(1/T);
 fD = 0;
@@ -53,11 +57,9 @@ acqHits = struct('prn', cell(1,numSv), 'fD', cell(1,numSv), ...
 sigma = NaN;
 
 while fD < abs(fDmax)
-    % carrier wipe-off and down-sampling of the input signal
-    sLowRate = downSampleMix(s, fs, fi + fD, fc*(1+fD/f0), L);
-    
     % execute the correlation in frequency domain using the FFT
-    sLowRateF = fft(sLowRate) * ones(1, numSv);
+    sLowRateNoDoppler = sLowRateBB .* exp(1i*2*pi*fD*tLowRateBB);
+    sLowRateF = fft(sum(reshape(sLowRateNoDoppler,L,numCodes), 2)) * ones(1, numSv);
     corrMag = abs(ifft(sLowRateF .* cF));
     
     if isnan(sigma)
@@ -104,11 +106,12 @@ cno = arrayfun(@(x) 10*log10(x.peakRatio^2/(2*T)), acqHits(prn));
 
 end
 
-% sLowRate = downSampleMix(s, fs, f, fc, L)
+
+% [sLowRate, numCodes] = downSampleMix(s, fs, f, fc, L)
 %
 % Mixes input signal s to baseband with frequency f and at the same time
 % reduces the sampling rate to the chipping rate fc. The chips are
-% pre-integrated.
+% pre-integrated. No summation over multiple codes.
 %
 % Parameters:
 % s.......... input signal samples
@@ -119,10 +122,13 @@ end
 %
 % Returns:
 % sLowRate... input signal reduced to rate fc
+% numCodes... number of codes returned
 %
-function sLowRate = downSampleMix(s, fs, f, fc, L)
+function [sLowRate, numCodes] = downSampleMix(s, fs, f, fc, L)
 
-sLowRate = zeros(L, 1);
+numCodes = ceil(ceil(length(s)*fc/fs) / L);
+numChips = numCodes * L;
+sLowRate = zeros(numChips, 1);
 
 carrPhase = 0;
 carrPhaseIncr = 2*pi*f/fs;
@@ -130,7 +136,7 @@ codePhase = 0;
 codePhaseIncr = fc / fs;
 
 for n=1:length(s)
-    ixLowRate = mod(floor(codePhase), L) + 1;
+    ixLowRate = floor(codePhase) + 1;
     sLowRate(ixLowRate) = sLowRate(ixLowRate) + s(n) * exp(1i*carrPhase);
     
     carrPhase = carrPhase + carrPhaseIncr;
@@ -138,6 +144,7 @@ for n=1:length(s)
 end
 
 end
+
 
 % [yi,xi] = interpolateMax3(y, xMax)
 %
