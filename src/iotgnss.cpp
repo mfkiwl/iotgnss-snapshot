@@ -14,15 +14,20 @@
 // along with iotgnss.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "io.h"
+#include "codes_gpsl1ca.h"
 
 #include <iostream>
 #include <vector>
 
 int main()
 {
-	IoSxnsr testdata("../matlab/snapshotReceiver/testdata/sxnsr_test_data_flight.stream");
+	IoSxnsr testdata("matlab/snapshotReceiver/testdata/sxnsr_test_data_flight.stream");
 	std::vector<float> s;
 	auto n = testdata.readSamplesRealFloat(204800, s);
 	std::cout << n << " samples read" << std::endl;
+
+	GpsL1caCodes gpsc;
+	auto c = gpsc.getPrimaryCode(1);
+	std::cout << c->size() << std::endl;
 	return 0;
 }

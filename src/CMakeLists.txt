@@ -19,5 +19,5 @@ project(iotgnss)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(iotgnssSrcs iotgnss.cpp io.cpp)
+set(iotgnssSrcs iotgnss.cpp io.cpp codes_gpsl1ca.cpp)
 add_executable(iotgnss ${iotgnssSrcs})

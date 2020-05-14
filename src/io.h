@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "codes.h"
+
 #include <fstream>
 #include <vector>
 
@@ -37,4 +39,12 @@ private:
     //! allocate in vector smplBuf at least N entries
     template <typename T>
     bool allocateSmplVector(std::vector<T> &smplBuf, const std::size_t N);
+};
+
+//! Class to parse spreading codes from files
+class IoCodes
+{
+public:
+    //! Reads the spreading codes from a file. Returns number of codes parsed
+    static unsigned int readCodes(const std::string &filename, std::vector<code_t> &codes);
 };

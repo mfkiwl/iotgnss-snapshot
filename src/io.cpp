@@ -77,3 +77,36 @@ bool IoSxnsr::allocateSmplVector(std::vector<T> &smplBuf, const std::size_t N)
 
     return smplBuf.capacity() >= N;
 }
+
+unsigned int IoCodes::readCodes(const std::string &filename, std::vector<std::vector<bool>> &codes)
+{
+    std::ifstream f(filename, std::ios::in);
+
+    unsigned int numCodesParsed = 0;
+
+    if (f && !f.fail() && f.is_open())
+    {
+        codes.clear();
+
+        // parse the input codes file line by line
+        std::string line;
+        while (f >> line)
+        {
+            // reserve space for the expected number of chips
+            std::vector<bool> code(line.length());
+            auto itCode = code.begin();
+            for (const auto c : line)
+            {
+                if ('0' <= c && c <= '1')
+                {
+                    *itCode++ = (c - '0' == 1);
+                }
+            }
+
+            codes.emplace_back(code);
+            ++numCodesParsed;
+        }
+    }
+
+    return numCodesParsed;
+}
