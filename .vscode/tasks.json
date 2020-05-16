@@ -7,13 +7,24 @@
             "options": {
                 "cwd": "${workspaceRoot}/src"
             },
-            "command": "CMake",
-            "args": [
-                "-G",
-                "\"MinGW Makefiles\"",
-                "-DCMAKE_BUILD_TYPE=Debug",
-                "."
-            ],
+            "windows": {
+                "command": "CMake",
+                "args": [
+                    "-G",
+                    "\"MinGW Makefiles\"",
+                    "-DCMAKE_BUILD_TYPE=Debug",
+                    "."
+                ]
+            },
+            "linux": {
+                "command": "cmake",
+                "args": [
+                    "-G",
+                    "\"Unix Makefiles\"",
+                    "-DCMAKE_BUILD_TYPE=Debug",
+                    "."
+                ]
+            },
             "problemMatcher": []
         },
         {
